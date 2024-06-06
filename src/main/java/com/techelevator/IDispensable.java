@@ -1,5 +1,9 @@
 package com.techelevator;
 
+import java.math.BigDecimal;
+
 public interface IDispensable {
-    public void Dispense();
+    void dispense();
+    String getDescription();
+    BigDecimal getPrice();
 }

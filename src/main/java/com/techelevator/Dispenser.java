@@ -1,22 +1,29 @@
 package com.techelevator;
 
-public final class Dispenser {
+import java.math.BigDecimal;
+
+public final class Dispenser implements IDispensable {
     public Dispenser(IDispensable item, int dispenseCount) {
         this.dispensedItem = item;
         this.dispenseCount = dispenseCount;
     }
 
-    public void Dispense() {
+    @Override
+    public void dispense() {
         if (dispenseCount < 1) return;
 
-        dispensedItem.Dispense();
+        dispensedItem.dispense();
         dispenseCount--;
     }
 
     @Override
-    public String toString() {
-        return dispensedItem.toString();
-    }
+    public String getDescription() { return dispensedItem.getDescription(); }
+
+    @Override
+    public BigDecimal getPrice() { return dispensedItem.getPrice(); }
+
+    @Override
+    public String toString() { return dispensedItem.toString(); }
 
     public int getRemainingCount() { return dispenseCount; }
 

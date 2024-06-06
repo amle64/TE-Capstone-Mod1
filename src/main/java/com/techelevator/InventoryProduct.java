@@ -14,18 +14,21 @@ public abstract class InventoryProduct implements IDispensable {
     public abstract void useItem();
 
     @Override
-    public void Dispense() { useItem(); }
+    public void dispense() { useItem(); }
 
     @Override
     public String toString(){
         return String.format("%s|%s|%s|",slotId,product,price);
     }
 
+    @Override
+    public String getDescription() { return product; };
+    @Override
+    public BigDecimal getPrice(){
+        return price;
+    }
     public String getSlotId() {
         return slotId;
-    }
-    public String getPrice(){
-        return price.toString();
     }
 
     //Variables for the products
