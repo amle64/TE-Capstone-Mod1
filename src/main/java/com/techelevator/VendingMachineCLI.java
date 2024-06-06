@@ -6,6 +6,8 @@ import com.techelevator.view.MainMenu;
 import com.techelevator.view.PurchaseMenu;
 import com.techelevator.view.VendingMenu;
 
+import java.math.BigDecimal;
+
 public class VendingMachineCLI {
 	public VendingMachineCLI(VendingMenu menu) throws InventoryLoadException {
 		this.menu = menu;
@@ -23,6 +25,17 @@ public class VendingMachineCLI {
 					break;
 				case Purchase:
 					PurchaseMenu.Options purchaseChoice = (PurchaseMenu.Options)menu.getChoiceFromOptions(PURCHASE_MENU_OPTIONS);
+
+					switch(purchaseChoice){
+						case FeedMoney:
+							//vendingMachine.addFunds(BigDecimal.valueOf(10.99));
+							break;
+						case SelectProduct:
+							//vendingMachine.selectProduct("A1");
+							break;
+						case FinishTransaction:
+							break;
+					}
 
 					break;
 				case Exit:
