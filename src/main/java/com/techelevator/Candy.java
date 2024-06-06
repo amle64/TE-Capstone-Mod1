@@ -8,9 +8,8 @@ public class Candy extends InventoryProduct{
         super(slotId,product,price);
     }
 
-
     @Override
-    public String toString(){
-        return "Munch Munch, Mmm Mmm Good";
+    public void useItem(){
+        System.out.println("Munch Munch, Mmm Mmm Good");
     }
 }

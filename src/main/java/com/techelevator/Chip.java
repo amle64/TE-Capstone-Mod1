@@ -9,7 +9,7 @@ public class Chip extends InventoryProduct{
     }
 
     @Override
-    public String toString(){
-        return "Crunch Crunch, It's Yummy!";
+    public void useItem(){
+        System.out.println("Crunch Crunch, It's Yummy!");
     }
 }

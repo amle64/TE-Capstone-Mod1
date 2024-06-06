@@ -9,7 +9,7 @@ public class Gum extends InventoryProduct{
     }
 
     @Override
-    public String toString(){
-        return "Chew Chew, Pop!";
+    public void useItem(){
+        System.out.println("Chew Chew, Pop!");
     }
 }

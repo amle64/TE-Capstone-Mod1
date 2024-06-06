@@ -2,7 +2,7 @@ package com.techelevator;
 
 import java.math.BigDecimal;
 
-public class InventoryProduct {
+public abstract class InventoryProduct {
 
     //Variables for the products
     private String slotId;
@@ -20,6 +20,10 @@ public class InventoryProduct {
 
     }
 
+    //Abstract method to be used by subclasses
+    public abstract void useItem();
+
+    //Getters
     public String getSlotId() {
         return slotId;
     }

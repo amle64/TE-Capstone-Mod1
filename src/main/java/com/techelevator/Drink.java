@@ -9,7 +9,7 @@ public class Drink extends InventoryProduct{
     }
 
     @Override
-    public String toString(){
-        return "Glug Glug, Chug Chug!";
+    public void useItem(){
+        System.out.println("Glug Glug, Chug Chug!");
     }
 }
