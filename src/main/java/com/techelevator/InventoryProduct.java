@@ -2,7 +2,7 @@ package com.techelevator;
 
 import java.math.BigDecimal;
 
-public abstract class InventoryProduct {
+public abstract class InventoryProduct implements IDispensable {
 
     //Variables for the products
     private String slotId;
@@ -19,9 +19,11 @@ public abstract class InventoryProduct {
 
 
     }
-
     //Abstract method to be used by subclasses
     public abstract void useItem();
+
+    @Override
+    public void Dispense() { useItem(); }
 
     @Override
     public String toString(){
