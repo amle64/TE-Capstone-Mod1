@@ -13,6 +13,11 @@ public final class Dispenser {
         dispenseCount--;
     }
 
+    @Override
+    public String toString() {
+        return dispensedItem.toString();
+    }
+
     public int getRemainingCount() { return dispenseCount; }
 
     private final IDispensable dispensedItem;
