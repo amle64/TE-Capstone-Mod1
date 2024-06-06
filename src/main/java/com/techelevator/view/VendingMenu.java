@@ -15,8 +15,8 @@ public class VendingMenu {
 		this.in = new Scanner(input);
 	}
 
-	public Object getChoiceFromOptions(Object[] options) {
-		Object choice = null;
+	public IMenuOptions getChoiceFromOptions(IMenuOptions[] options) {
+		IMenuOptions choice = null;
 		while (choice == null) {
 			displayMenuOptions(options);
 			choice = getChoiceFromUserInput(options);
@@ -24,8 +24,8 @@ public class VendingMenu {
 		return choice;
 	}
 
-	private Object getChoiceFromUserInput(Object[] options) {
-		Object choice = null;
+	private IMenuOptions getChoiceFromUserInput(IMenuOptions[] options) {
+		IMenuOptions choice = null;
 		String userInput = in.nextLine();
 		try {
 			int selectedOption = Integer.valueOf(userInput);
@@ -41,11 +41,11 @@ public class VendingMenu {
 		return choice;
 	}
 
-	private void displayMenuOptions(Object[] options) {
+	private void displayMenuOptions(IMenuOptions[] options) {
 		out.println();
 		for (int i = 0; i < options.length; i++) {
 			int optionNum = i + 1;
-			out.println(optionNum + ") " + options[i]);
+			out.println(optionNum + ") " + options[i].getOptionText());
 		}
 		out.print(System.lineSeparator() + "Please choose an option >>> ");
 		out.flush();
