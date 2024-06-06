@@ -5,7 +5,7 @@ import com.techelevator.exceptions.InventoryLoadException;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.FileWriter;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.*;
@@ -25,15 +25,33 @@ public final class VendingMachine {
     }
 
     public void addFunds(BigDecimal funds) {
+        if (funds.compareTo(BigDecimal.ZERO) == -1) return;
 
+        currentBalance = currentBalance.add(funds);
+        //logTransaction(ADD_FUNDS_LOG_TEXT, funds, currentBalance);
     }
 
     public void selectProduct(String slotNumber) {
+        if (!inventoryMap.containsKey(slotNumber)) {
+            System.out.println("Invalid Slot Number!");
+            return;
+        }
 
+        Dispenser product = inventoryMap.get(slotNumber);
+        if (product.getRemainingCount() == 0) {
+            System.out.printf("Sorry we're all out %s!", product.getDescription());
+            return;
+        }
+
+        product.dispense();
+        currentBalance = currentBalance.subtract(product.getPrice());
+        //logTransaction(String.format("%s %s", product.getDescription(), slotNumber), product.getPrice(), currentBalance);
     }
 
     public void finishTransaction() {
 
+
+        //logTransaction()
     }
 
     private HashMap<String, Dispenser> loadInventory(List<String[]> tokenLines) throws InventoryLoadException {
@@ -101,7 +119,7 @@ public final class VendingMachine {
     }
 
     //private Scanner fileReader;
-    //private FileWriter fileWriter;
+    private FileWriter fileWriter;
     private BigDecimal currentBalance;
     private LocalDate dateOfOperation;
     private String selectedProduct;
@@ -109,4 +127,6 @@ public final class VendingMachine {
     private List<Dispenser> inventoryList;
 
     private final int PRODUCTS_PER_SLOT;
+    private static final String ADD_FUNDS_LOG_TEXT = "FEED MONEY";
+    private static final String CHANGE_LOG_TEXT = "GIVE CHANGE";
 }
