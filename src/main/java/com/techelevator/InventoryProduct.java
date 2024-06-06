@@ -23,6 +23,12 @@ public abstract class InventoryProduct {
     //Abstract method to be used by subclasses
     public abstract void useItem();
 
+    @Override
+    public String toString(){
+        return String.format("%s|%s|%s|",slotId,product,price);
+
+    }
+
     //Getters
     public String getSlotId() {
         return slotId;
