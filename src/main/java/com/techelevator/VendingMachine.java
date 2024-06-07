@@ -30,7 +30,11 @@ public final class VendingMachine {
     }
 
     public void addFunds(BigDecimal funds) {
-        if (funds.compareTo(BigDecimal.ZERO) < 0) return;
+        if (funds.compareTo(BigDecimal.ZERO) < 0) {
+            consoleOut.println("Only non-negative funds can be added!");
+            consoleOut.flush();
+            return;
+        }
 
         currentBalance = currentBalance.add(funds);
         printTransaction(ADD_FUNDS_LOG_TEXT, funds, currentBalance);
@@ -44,6 +48,12 @@ public final class VendingMachine {
         }
 
         Dispenser product = inventoryMap.get(slotNumber);
+        if (currentBalance.subtract(product.getPrice()).compareTo(BigDecimal.ZERO) < 0) {
+            consoleOut.println("Not enough funds! Please add more!");
+            consoleOut.flush();
+            return;
+        }
+
         if (product.getRemainingCount() == 0) {
             consoleOut.printf("Sorry we're all out %s!\n", product.getDescription());
             consoleOut.flush();
