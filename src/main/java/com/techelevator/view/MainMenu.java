@@ -14,6 +14,11 @@ public class MainMenu {
             return OPTIONS_TEXT[value];
         }
 
+        @Override
+        public String toString() {
+            return OPTIONS_TEXT[value];
+        }
+
         private Options(int value) {
             this.value = value;
         }
