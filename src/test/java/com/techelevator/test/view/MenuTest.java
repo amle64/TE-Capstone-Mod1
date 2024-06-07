@@ -1,8 +1,11 @@
-package com.techelevator.view;
+package com.techelevator.test.view;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
+import com.techelevator.view.MainMenu;
+import com.techelevator.view.PurchaseMenu;
+import com.techelevator.view.VendingMenu;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
