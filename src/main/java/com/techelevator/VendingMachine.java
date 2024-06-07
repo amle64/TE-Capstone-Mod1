@@ -30,7 +30,7 @@ public final class VendingMachine {
     }
 
     public void addFunds(BigDecimal funds) {
-        if (funds.compareTo(BigDecimal.ZERO) == -1) return;
+        if (funds.compareTo(BigDecimal.ZERO) < 0) return;
 
         currentBalance = currentBalance.add(funds);
         printTransaction(ADD_FUNDS_LOG_TEXT, funds, currentBalance);

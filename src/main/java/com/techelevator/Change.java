@@ -10,7 +10,7 @@ public class Change {
         BigDecimal remainder = total;
 
         //Handles all whole numbers greater than $1
-        if (total.compareTo(BigDecimal.ONE) == 1) {
+        if (total.compareTo(BigDecimal.ONE) > 0) {
             numberOfCoins[dollarIndex] = total.intValue();
             remainder = remainder.subtract(BigDecimal.valueOf(numberOfCoins[dollarIndex]));
         }
