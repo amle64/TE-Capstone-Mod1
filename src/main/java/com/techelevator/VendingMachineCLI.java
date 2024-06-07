@@ -55,11 +55,11 @@ public class VendingMachineCLI {
 
 			switch(purchaseChoice){
 				case FeedMoney:
-					System.out.print("Please enter the amount you would like to deposit: ");
+					System.out.print("Please type enter the amount of $$ you would like to add to your balance: ");
 					vendingMachine.addFunds(menu.getMoneyInput());
 					break;
 				case SelectProduct:
-					System.out.print("Please enter a product SlotID: ");
+					System.out.print("Please enter the slot ID you would like to purchase today: ");
 					vendingMachine.selectProduct(menu.getStringInput());
 					//vendingMachine.selectProduct("A1");
 					break;
