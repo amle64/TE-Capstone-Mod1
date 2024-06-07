@@ -59,7 +59,8 @@ public class VendingMachineCLI {
 					vendingMachine.addFunds(menu.getMoneyInput());
 					break;
 				case SelectProduct:
-					System.out.print("Please enter the slot ID you would like to purchase today: ");
+					vendingMachine.displayItems();
+					System.out.printf("\nPlease enter the slot ID you would like to purchase today: ");
 					vendingMachine.selectProduct(menu.getStringInput());
 					//vendingMachine.selectProduct("A1");
 					break;
