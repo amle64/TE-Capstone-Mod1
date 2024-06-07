@@ -4,32 +4,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 public class Change {
-
-    //private final static BigDecimal dollar = BigDecimal.valueOf(1.00);
-    private final static BigDecimal quarter = BigDecimal.valueOf(0.25);
-    private final static BigDecimal dime = BigDecimal.valueOf(0.10);
-    private final static BigDecimal nickel = BigDecimal.valueOf(0.05);
-    private final static BigDecimal penny = BigDecimal.valueOf(0.01);
-
-    private final static BigDecimal[] orderArray = new BigDecimal[]{quarter, dime, nickel, penny};
-    private final static int dollarIndex = 0;
-    private final static int quarterIndex = 1;
-    private final static int dimeIndex = 2;
-    private final static int nickelIndex = 3;
-    private final static int pennyIndex = 4;
-
-    private final static String[] coinTextSingular = new String[]{"dollar", "quarter", "dime", "nickel", "penny"};
-    private final static String[] coinTextPlural = new String[]{"dollars", "quarters", "dimes", "nickels", "pennies"};
-
-    private final BigDecimal total;
-
-
-    private final int[] numberOfCoins = new int[]{0, 0, 0, 0, 0};
-
-
-    private String displayChangeMsg = "You have ";
-
-
     //Constructor
     public Change(BigDecimal total) {
         this.total = total;
@@ -53,6 +27,7 @@ public class Change {
                 if (coinMaxAmount.compareTo(BigDecimal.ZERO) == 0) {
                     continue;
                 }
+
                 switch (i) {
                     case 0:
                         numberOfCoins[quarterIndex] = coinMaxAmount.intValue();
@@ -82,7 +57,6 @@ public class Change {
             String[] coinTexts = null;
             coinTexts = (coinCount > 1) ? coinTextPlural : coinTextSingular;
 
-
             if (i == numberOfCoins.length - 1) {
                 displayChangeMsg = displayChangeMsg.concat(String.format("and %d %s", coinCount, coinTexts[i]));
             } else {
@@ -90,9 +64,7 @@ public class Change {
             }
         }
 
-
     }
-
 
     //Print string of change interaction
     @Override
@@ -100,4 +72,25 @@ public class Change {
 
         return displayChangeMsg;
     }
+
+    private final BigDecimal total;
+    private final int[] numberOfCoins = new int[]{0, 0, 0, 0, 0};
+    private String displayChangeMsg = "You have ";
+
+    //private final static BigDecimal dollar = BigDecimal.valueOf(1.00);
+    private final static BigDecimal quarter = BigDecimal.valueOf(0.25);
+    private final static BigDecimal dime = BigDecimal.valueOf(0.10);
+    private final static BigDecimal nickel = BigDecimal.valueOf(0.05);
+    private final static BigDecimal penny = BigDecimal.valueOf(0.01);
+
+    private final static BigDecimal[] orderArray = new BigDecimal[]{quarter, dime, nickel, penny};
+    private final static int dollarIndex = 0;
+    private final static int quarterIndex = 1;
+    private final static int dimeIndex = 2;
+    private final static int nickelIndex = 3;
+    private final static int pennyIndex = 4;
+
+    private final static String[] coinTextSingular = new String[]{"dollar", "quarter", "dime", "nickel", "penny"};
+    private final static String[] coinTextPlural = new String[]{"dollars", "quarters", "dimes", "nickels", "pennies"};
+
 }
