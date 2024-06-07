@@ -31,7 +31,11 @@ public final class VendingMachine {
 
     public void addFunds(BigDecimal funds) {
         if (funds.compareTo(BigDecimal.ZERO) < 0) {
-            consoleOut.println("Only non-negative funds can be added!");
+            consoleOut.printf("Please re-enter your amount of $$ that is not negative! %s is not a valid deposit.",currencyFormat.format(funds));
+            consoleOut.flush();
+            return;
+        } else if (funds.compareTo(BigDecimal.ZERO)==0){
+            consoleOut.printf("Please re-enter your amount of $$ that is not zero! %s is not a valid deposit.",currencyFormat.format(funds));
             consoleOut.flush();
             return;
         }
@@ -87,8 +91,9 @@ public final class VendingMachine {
         for (int i = 0; i < 14-transactionName.length(); i++) {
             transaction = transaction.concat(" ");
         }
-
+        consoleOut.println("*******************Transaction Message*******************");
         transaction = transaction.concat(String.format("| %s  %s",currencyFormat.format(cost.doubleValue()), currencyFormat.format(balance.doubleValue())));
+
 
         consoleOut.println(transaction);
         consoleOut.flush();
