@@ -6,12 +6,14 @@ import com.techelevator.view.MainMenu;
 import com.techelevator.view.PurchaseMenu;
 import com.techelevator.view.VendingMenu;
 
+import java.io.InputStream;
 import java.math.BigDecimal;
+import java.util.Scanner;
 
 public class VendingMachineCLI {
 	public VendingMachineCLI(VendingMenu menu) throws InventoryLoadException {
 		this.menu = menu;
-		this.vendingMachine = new VendingMachine(5, System.out,"vendingMachine.csv");
+		vendingMachine = new VendingMachine(5, System.out,"vendingMachine.csv");
 	}
 
 	public void run() {
@@ -24,19 +26,7 @@ public class VendingMachineCLI {
 					vendingMachine.displayItems();
 					break;
 				case Purchase:
-					PurchaseMenu.Options purchaseChoice = (PurchaseMenu.Options)menu.getChoiceFromOptions(PURCHASE_MENU_OPTIONS);
-
-					switch(purchaseChoice){
-						case FeedMoney:
-							//vendingMachine.addFunds(BigDecimal.valueOf(10.99));
-							break;
-						case SelectProduct:
-							//vendingMachine.selectProduct("A1");
-							break;
-						case FinishTransaction:
-							break;
-					}
-
+					handleTransactions();
 					break;
 				case Exit:
 					running = false;
@@ -47,7 +37,7 @@ public class VendingMachineCLI {
 		}
 	}
 
-	public static void main(String[] args) {
+	public static <InputStream> void main(String[] args) {
 		VendingMenu menu = new VendingMenu(System.in, System.out);
 
 		try {
@@ -55,6 +45,28 @@ public class VendingMachineCLI {
 			cli.run();
 		} catch (InventoryLoadException ex) {
 			System.out.println(ex.getMessage());
+		}
+	}
+
+	private void handleTransactions() {
+		boolean inTransaction = true;
+		while (inTransaction) {
+			PurchaseMenu.Options purchaseChoice = (PurchaseMenu.Options)menu.getChoiceFromOptions(PURCHASE_MENU_OPTIONS);
+
+			switch(purchaseChoice){
+				case FeedMoney:
+					System.out.print("Please enter the amount you would like to deposit: ");
+					vendingMachine.addFunds(menu.getMoneyInput());
+					break;
+				case SelectProduct:
+					System.out.print("Please enter a product SlotID: ");
+					vendingMachine.selectProduct(menu.getStringInput());
+					//vendingMachine.selectProduct("A1");
+					break;
+				case FinishTransaction:
+					inTransaction = false;
+					break;
+			}
 		}
 	}
 

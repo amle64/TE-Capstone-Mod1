@@ -3,12 +3,14 @@ package com.techelevator.view;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.lang.reflect.Type;
+import java.math.BigDecimal;
 import java.util.Scanner;
 
 public class VendingMenu {
 
-	private PrintWriter out;
-	private Scanner in;
+	private final PrintWriter out;
+	private final Scanner in;
 
 	public VendingMenu(InputStream input, OutputStream output) {
 		this.out = new PrintWriter(output);
@@ -22,6 +24,36 @@ public class VendingMenu {
 			choice = getChoiceFromUserInput(options);
 		}
 		return choice;
+	}
+
+	public String getStringInput() {
+		return in.nextLine();
+	}
+
+	public int getIntInput() {
+		int input = 0;
+
+		try {
+			input = Integer.parseInt(in.nextLine());
+		} catch (NumberFormatException ex) {
+			out.println("Input is not a number!");
+			out.flush();
+		}
+
+		return input;
+	}
+
+	public BigDecimal getMoneyInput() {
+		BigDecimal input = BigDecimal.ZERO;
+
+		try {
+			input = new BigDecimal(in.nextLine());
+		} catch(NumberFormatException ex) {
+			out.println("Input is not a number!");
+			out.flush();
+		}
+
+		return input;
 	}
 
 	private IMenuOptions getChoiceFromUserInput(IMenuOptions[] options) {
