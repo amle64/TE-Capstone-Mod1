@@ -3,9 +3,7 @@ package com.techelevator;
 import com.techelevator.exceptions.InvalidProductTypeException;
 import com.techelevator.exceptions.InventoryLoadException;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
+import java.io.*;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.time.LocalDate;
@@ -14,9 +12,10 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public final class VendingMachine {
-    public VendingMachine(int productsPerSlot, String inventoryFilepath) throws InventoryLoadException {
+    public VendingMachine(int productsPerSlot, OutputStream outputStream, String inventoryFilepath) throws InventoryLoadException {
         this.PRODUCTS_PER_SLOT = productsPerSlot;
 
+        consoleOut = new PrintWriter(outputStream);
         currentBalance = BigDecimal.ZERO;
         inventoryList = new ArrayList<>();
         inventoryMap = loadInventory(readInventoryFile(inventoryFilepath));
@@ -24,8 +23,10 @@ public final class VendingMachine {
 
     public void displayItems() {
         for (Dispenser product : inventoryList) {
-            System.out.println(product);
+            consoleOut.println(product);
         }
+
+        consoleOut.flush();
     }
 
     public void addFunds(BigDecimal funds) {
@@ -37,13 +38,15 @@ public final class VendingMachine {
 
     public void selectProduct(String slotNumber) {
         if (!inventoryMap.containsKey(slotNumber)) {
-            System.out.println("Invalid Slot Number!");
+            consoleOut.println("Invalid Slot Number!");
+            consoleOut.flush();
             return;
         }
 
         Dispenser product = inventoryMap.get(slotNumber);
         if (product.getRemainingCount() == 0) {
-            System.out.printf("Sorry we're all out %s!", product.getDescription());
+            consoleOut.printf("Sorry we're all out %s!\n", product.getDescription());
+            consoleOut.flush();
             return;
         }
 
@@ -52,15 +55,13 @@ public final class VendingMachine {
         printTransaction(String.format("%s %s", product.getDescription(), slotNumber), product.getPrice(), currentBalance);
     }
 
-
-
     public void finishTransaction() {
 
 
         //logTransaction()
     }
 
-    private static void printTransaction(String transactionName, BigDecimal cost, BigDecimal balance){
+    private void printTransaction(String transactionName, BigDecimal cost, BigDecimal balance){
         //Date
         LocalDate dateOfOperation = LocalDate.now();
         DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("MM/dd/yyyy");
@@ -76,8 +77,11 @@ public final class VendingMachine {
         for (int i = 0; i < 14-transactionName.length(); i++) {
             transaction = transaction.concat(" ");
         }
+
         transaction = transaction.concat(String.format("| %s  %s",currencyFormat.format(cost.doubleValue()), currencyFormat.format(balance.doubleValue())));
-        System.out.println(transaction);
+
+        consoleOut.println(transaction);
+        consoleOut.flush();
     }
 
     private HashMap<String, Dispenser> loadInventory(List<String[]> tokenLines) throws InventoryLoadException {
@@ -138,7 +142,8 @@ public final class VendingMachine {
             }
 
         } catch (FileNotFoundException ex) {
-            System.out.println("Inventory File not found!");
+            consoleOut.println("Inventory File not found!");
+            consoleOut.flush();
         }
 
         return serializedInv;
@@ -151,6 +156,7 @@ public final class VendingMachine {
     private String selectedProduct;
     private HashMap<String, Dispenser> inventoryMap;
     private List<Dispenser> inventoryList;
+    private PrintWriter consoleOut;
 
     private final int PRODUCTS_PER_SLOT;
     private static final String ADD_FUNDS_LOG_TEXT = "FEED MONEY";

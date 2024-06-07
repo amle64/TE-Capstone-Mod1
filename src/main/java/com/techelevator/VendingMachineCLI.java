@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 public class VendingMachineCLI {
 	public VendingMachineCLI(VendingMenu menu) throws InventoryLoadException {
 		this.menu = menu;
-		this.vendingMachine = new VendingMachine(5, "vendingMachine.csv");
+		this.vendingMachine = new VendingMachine(5, System.out,"vendingMachine.csv");
 	}
 
 	public void run() {
