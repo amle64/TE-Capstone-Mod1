@@ -32,6 +32,7 @@ public class VendingMachineCLI {
 					running = false;
 					continue;
 				case Secret:
+					vendingMachine.printSalesReport();
 					break;
 			}
 		}
@@ -62,10 +63,10 @@ public class VendingMachineCLI {
 					vendingMachine.displayItems();
 					System.out.printf("\nPlease enter the slot ID you would like to purchase today: ");
 					vendingMachine.selectProduct(menu.getStringInput());
-					//vendingMachine.selectProduct("A1");
 					break;
 				case FinishTransaction:
 					inTransaction = false;
+					vendingMachine.finishTransaction();
 					break;
 			}
 		}
