@@ -1,6 +1,6 @@
 package com.techelevator.test;
 
-import com.techelevator.Dispenser;
+import com.techelevator.product.Dispenser;
 import com.techelevator.VendingMachine;
 import com.techelevator.exceptions.InventoryLoadException;
 import org.junit.Assert;
@@ -42,7 +42,7 @@ public class VendingMachineTest {
 
         printTransactionMethod.invoke(vendingMachine, "CHARGEBACK", new BigDecimal("5.00"), new BigDecimal("25.00"));
 
-        String transactionText = output.toString();
+        String transactionText = output.toString().split("\n")[1];
         String transactionTextNoTime = transactionText.replace(transactionText.substring(10, 23), "");
         output.reset();
 
@@ -50,19 +50,19 @@ public class VendingMachineTest {
 
         printTransactionMethod.invoke(vendingMachine, "FEED MONEY", new BigDecimal("23.50"), new BigDecimal("1.50"));
 
-        transactionText = output.toString();
+        transactionText = output.toString().split("\n")[1];
         transactionTextNoTime = transactionText.replace(transactionText.substring(10, 23), "");
         output.reset();
 
-        Assert.assertEquals(String.format("%s  FEED MONEY    | $23.50  $1.50\r\n", todayDate), transactionTextNoTime);
+        Assert.assertEquals(String.format("%s  FEED MONEY    | $23.50  $1.50\r\n\n", todayDate), transactionTextNoTime);
 
         printTransactionMethod.invoke(vendingMachine, "CHANGE", new BigDecimal("5.25"), new BigDecimal("6.75"));
 
-        transactionText = output.toString();
+        transactionText = output.toString().split("\n")[1];
         transactionTextNoTime = transactionText.replace(transactionText.substring(10, 23), "");
         output.reset();
 
-        Assert.assertEquals(String.format("%s  CHANGE        | $5.25  $6.75\r\n", todayDate), transactionTextNoTime);
+        Assert.assertEquals(String.format("%s  CHANGE        | $5.25  $6.75\r\n\n", todayDate), transactionTextNoTime);
     }
 
     @Test

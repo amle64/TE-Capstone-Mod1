@@ -2,6 +2,7 @@ package com.techelevator;
 
 import com.techelevator.exceptions.InvalidProductTypeException;
 import com.techelevator.exceptions.InventoryLoadException;
+import com.techelevator.product.*;
 
 import java.io.*;
 import java.math.BigDecimal;
