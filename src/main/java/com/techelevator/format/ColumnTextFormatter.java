@@ -15,8 +15,28 @@ public class ColumnTextFormatter {
         }
     }
 
-    public String format(String[] input) {
-        return "";
+    public String format(String[] columnEntries, char separatorCharacter, int padding) {
+        StringBuilder formattedString = new StringBuilder();
+        if (columnEntries.length > NUMBER_OF_COLUMNS) return formattedString.toString();
+
+        String token;
+        int printedLength, columnWidth;
+
+        for (int i = 0; i < columnEntries.length; i++) {
+            token = columnEntries[i];
+
+            printedLength = token.length();
+            columnWidth = COLUMN_HEAPS[i].get(0);
+
+            formattedString.append(" ".repeat(Math.max(0, padding)));
+            formattedString.append(token);
+            formattedString.append(" ".repeat(Math.max(0, padding)));
+
+            formattedString.append(" ".repeat(Math.max(0, columnWidth - printedLength)));
+            formattedString.append("|");
+        }
+
+        return formattedString.toString();
     }
 
     public void addColumnWidth(String entryText, int column) {
@@ -26,7 +46,14 @@ public class ColumnTextFormatter {
             columnHeap.add(entryText.length());
         }
 
+        columnHeap.add(entryText.length());
+        maxHeapify(columnHeap, columnHeap.size() - 1);
+    }
 
+    public int getMaxColumnWidth(int column) {
+        if (column >= NUMBER_OF_COLUMNS) return -1;
+
+        return COLUMN_HEAPS[column].get(0);
     }
 
     private void maxHeapify(List<Integer> heap, int currentIndex) {
