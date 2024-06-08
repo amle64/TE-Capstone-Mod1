@@ -6,8 +6,15 @@ import java.math.RoundingMode;
 public class Change {
     //Constructor
     public Change(BigDecimal total) {
+
+
         this.total = total;
         BigDecimal remainder = total;
+
+        if(total.compareTo(BigDecimal.ZERO)==0){
+            displayChangeMsg ="Your total is zero, so no change is provided.";
+            return;
+        }
 
         //Handles all whole numbers greater than $1
         if (total.compareTo(BigDecimal.ONE) > 0) {
