@@ -1,14 +1,9 @@
 package com.techelevator;
 
-import com.sun.tools.javac.Main;
 import com.techelevator.exceptions.InventoryLoadException;
 import com.techelevator.view.MainMenu;
 import com.techelevator.view.PurchaseMenu;
 import com.techelevator.view.VendingMenu;
-
-import java.io.InputStream;
-import java.math.BigDecimal;
-import java.util.Scanner;
 
 public class VendingMachineCLI {
 	public VendingMachineCLI(VendingMenu menu) throws InventoryLoadException {
@@ -61,8 +56,8 @@ public class VendingMachineCLI {
 					break;
 				case SelectProduct:
 					vendingMachine.displayItems();
-					System.out.printf("\nPlease enter the slot ID you would like to purchase today: ");
-					vendingMachine.selectProduct(menu.getStringInput());
+					System.out.print("\nPlease enter the slot ID you would like to purchase today: ");
+					vendingMachine.selectProduct(menu.getStringInput().toUpperCase());
 					break;
 				case FinishTransaction:
 					inTransaction = false;
