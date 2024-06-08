@@ -16,6 +16,19 @@ public final class VendingMachine {
     public VendingMachine(int productsPerSlot, OutputStream outputStream, String inventoryFilepath) throws InventoryLoadException {
         this.PRODUCTS_PER_SLOT = productsPerSlot;
 
+        try {
+            String [] dateTimeArray = dateTimeArray("MM-dd-yyyy","kk-mm-ss");
+            String date = dateTimeArray[0];
+            String time = dateTimeArray[1];
+
+            File logFile = new File(String.format("%s_%s_log.txt",date,time));
+            fileWriter = new FileWriter(logFile);
+        } catch (IOException ex){
+            consoleOut.println("An IOException error occurred");
+            consoleOut.flush();
+        }
+
+
         consoleOut = new PrintWriter(outputStream);
         currentBalance = BigDecimal.ZERO;
         inventoryList = new ArrayList<>();
@@ -71,33 +84,63 @@ public final class VendingMachine {
     }
 
     public void finishTransaction() {
-
-
+        Change changeTransaction = new Change(currentBalance);
+        consoleOut.println(changeTransaction);
+        consoleOut.flush();
         //logTransaction()
     }
 
     private void printTransaction(String transactionName, BigDecimal cost, BigDecimal balance){
-        //Date
-        LocalDate dateOfOperation = LocalDate.now();
-        DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("MM/dd/yyyy");
-        String date = dateFormat.format(dateOfOperation);
 
-        //Time
-        LocalTime timeOfOperation = LocalTime.now();
-        DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("hh:mm:ss a");
-        String time = timeFormat.format(timeOfOperation);
 
-        //Prepare transaction message
+        String [] dateTimeArray = dateTimeArray("MM/dd/yyyy","hh:mm:ss a");
+
+        String date = dateTimeArray[0];
+        String time = dateTimeArray[1];
+
         String transaction = String.format("%s  %s  %s", date,time,transactionName);
         for (int i = 0; i < 14-transactionName.length(); i++) {
             transaction = transaction.concat(" ");
         }
         consoleOut.println("*******************Transaction Message*******************");
-        transaction = transaction.concat(String.format("| %s  %s",currencyFormat.format(cost.doubleValue()), currencyFormat.format(balance.doubleValue())));
+        transaction = transaction.concat(String.format("| %s  %s\n",currencyFormat.format(cost.doubleValue()), currencyFormat.format(balance.doubleValue())));
 
 
-        consoleOut.println(transaction);
+        consoleOut.print(transaction);
         consoleOut.flush();
+
+        try {
+            fileWriter.append(transaction);
+            fileWriter.flush();
+        }
+        catch (IOException ex){
+            consoleOut.println("You have an IOException error!");
+        }
+
+    }
+
+    public void printSalesReport(){
+
+        Dispenser product;
+        for (int i = 0;i<inventoryList.size();i++){
+            product = inventoryList.get(i);
+            consoleOut.printf("| %s|%d\n",product.getDescription(),PRODUCTS_PER_SLOT-product.getRemainingCount());
+        }
+        consoleOut.flush();
+    }
+
+    private String[] dateTimeArray(String datePattern, String timePattern){
+        //Date
+        LocalDate dateOfOperation = LocalDate.now();
+        DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern(datePattern);
+        String date = dateFormat.format(dateOfOperation);
+
+        //Time
+        LocalTime timeOfOperation = LocalTime.now();
+        DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern(timePattern);
+        String time = timeFormat.format(timeOfOperation);
+
+        return new String[] {date,time};
     }
 
     private HashMap<String, Dispenser> loadInventory(List<String[]> tokenLines) throws InventoryLoadException {
