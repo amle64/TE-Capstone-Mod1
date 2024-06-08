@@ -6,8 +6,6 @@ import java.math.RoundingMode;
 public class Change {
     //Constructor
     public Change(BigDecimal total) {
-
-
         this.total = total;
         BigDecimal remainder = total;
 
@@ -75,10 +73,9 @@ public class Change {
 
     //Print string of change interaction
     @Override
-    public String toString() {
+    public String toString() { return displayChangeMsg; }
 
-        return displayChangeMsg;
-    }
+    public BigDecimal getTotal() { return total; }
 
     private final BigDecimal total;
     private final int[] numberOfCoins = new int[]{0, 0, 0, 0, 0};
