@@ -2,6 +2,7 @@ package com.techelevator;
 
 import com.techelevator.exceptions.InvalidProductTypeException;
 import com.techelevator.exceptions.InventoryLoadException;
+import com.techelevator.format.ColumnTextFormatter;
 import com.techelevator.product.*;
 
 import java.io.*;
@@ -14,7 +15,7 @@ import java.util.*;
 
 public final class VendingMachine {
     public VendingMachine(int productsPerSlot, OutputStream outputStream, String inventoryFilepath) throws InventoryLoadException {
-        this.PRODUCTS_PER_SLOT = productsPerSlot;
+        PRODUCTS_PER_SLOT = productsPerSlot;
 
         try {
             String [] dateTimeArray = dateTimeArray("MM-dd-yyyy","kk-mm-ss");
@@ -28,16 +29,16 @@ public final class VendingMachine {
             consoleOut.flush();
         }
 
-
         consoleOut = new PrintWriter(outputStream);
         currentBalance = BigDecimal.ZERO;
         inventoryList = new ArrayList<>();
         inventoryMap = loadInventory(readInventoryFile(inventoryFilepath));
+        buildInventoryDisplay();
     }
 
     public void displayItems() {
-        for (Dispenser product : inventoryList) {
-            consoleOut.println(product);
+        for (String productDisplay : inventoryDisplayBuffer) {
+            consoleOut.println(productDisplay);
         }
 
         consoleOut.flush();
@@ -45,11 +46,11 @@ public final class VendingMachine {
 
     public void addFunds(BigDecimal funds) {
         if (funds.compareTo(BigDecimal.ZERO) < 0) {
-            consoleOut.printf("Please re-enter your amount of $$ that is not negative! %s is not a valid deposit.",currencyFormat.format(funds));
+            consoleOut.printf("Please re-enter your amount of $$ that is not negative! %s is not a valid deposit.\n",currencyFormat.format(funds));
             consoleOut.flush();
             return;
         } else if (funds.compareTo(BigDecimal.ZERO)==0){
-            consoleOut.printf("Please re-enter your amount of $$ that is not zero! %s is not a valid deposit.",currencyFormat.format(funds));
+            consoleOut.printf("Please re-enter your amount of $$ that is not zero! %s is not a valid deposit.\n",currencyFormat.format(funds));
             consoleOut.flush();
             return;
         }
@@ -78,21 +79,25 @@ public final class VendingMachine {
             return;
         }
 
-        product.dispense();
         currentBalance = currentBalance.subtract(product.getPrice());
+
+        product.dispense();
+
+        buildInventoryDisplay();
         printTransaction(String.format("%s %s", product.getDescription(), slotNumber), product.getPrice(), currentBalance);
     }
 
     public void finishTransaction() {
         Change changeTransaction = new Change(currentBalance);
+        currentBalance = currentBalance.subtract(changeTransaction.getTotal());
+
         consoleOut.println(changeTransaction);
         consoleOut.flush();
-        //logTransaction()
+
+        printTransaction(CHANGE_LOG_TEXT, changeTransaction.getTotal(), currentBalance);
     }
 
     private void printTransaction(String transactionName, BigDecimal cost, BigDecimal balance){
-
-
         String [] dateTimeArray = dateTimeArray("MM/dd/yyyy","hh:mm:ss a");
 
         String date = dateTimeArray[0];
@@ -120,11 +125,10 @@ public final class VendingMachine {
     }
 
     public void printSalesReport(){
-
         Dispenser product;
-        for (int i = 0;i<inventoryList.size();i++){
+        for (int i = 0; i < inventoryList.size(); i++){
             product = inventoryList.get(i);
-            consoleOut.printf("| %s|%d\n",product.getDescription(),PRODUCTS_PER_SLOT-product.getRemainingCount());
+            consoleOut.printf("| %s|%d\n", product.getDescription(), PRODUCTS_PER_SLOT - product.getRemainingCount());
         }
         consoleOut.flush();
     }
@@ -143,15 +147,30 @@ public final class VendingMachine {
         return new String[] {date,time};
     }
 
+    private void buildInventoryDisplay() {
+        inventoryDisplayBuffer = new String[inventoryList.size()];
+
+        for (int i = 0; i < inventoryDisplayBuffer.length; i++) {
+            inventoryDisplayBuffer[i] = inventoryList.get(i).toString();
+        }
+    }
+
     private HashMap<String, Dispenser> loadInventory(List<String[]> tokenLines) throws InventoryLoadException {
         HashMap<String, Dispenser> loadedInv = new HashMap<>();
+        ColumnTextFormatter inventoryFormatter = new ColumnTextFormatter(tokenLines.get(0).length);
+
+        inventoryFormatter.addColumnWidth(SOLD_OUT_TEXT, 3);
 
         for (String[] tokenLine : tokenLines) {
             if (loadedInv.containsKey(tokenLine[0])) continue;
 
-            BigDecimal price = null;
+            BigDecimal price;
             String slotId = tokenLine[0], productName = tokenLine[1];
             String priceString = tokenLine[2], productType = tokenLine[3];
+
+            inventoryFormatter.addColumnWidth(slotId, 0);
+            inventoryFormatter.addColumnWidth(productName, 1);
+            inventoryFormatter.addColumnWidth(priceString, 2);
 
             try {
                 price = new BigDecimal(priceString);
@@ -163,19 +182,19 @@ public final class VendingMachine {
 
             switch (productType) {
                 case "Chip":
-                    productDispenser = new Dispenser(new Chip(slotId, productName, price), PRODUCTS_PER_SLOT);
+                    productDispenser = new Dispenser(new Chip(slotId, productName, price), inventoryFormatter, PRODUCTS_PER_SLOT);
 
                     break;
                 case "Candy":
-                    productDispenser = new Dispenser(new Candy(slotId, productName, price), PRODUCTS_PER_SLOT);
+                    productDispenser = new Dispenser(new Candy(slotId, productName, price), inventoryFormatter, PRODUCTS_PER_SLOT);
 
                     break;
                 case "Drink":
-                    productDispenser = new Dispenser(new Drink(slotId, productName, price), PRODUCTS_PER_SLOT);
+                    productDispenser = new Dispenser(new Drink(slotId, productName, price), inventoryFormatter, PRODUCTS_PER_SLOT);
 
                     break;
                 case "Gum":
-                    productDispenser = new Dispenser(new Gum(slotId, productName, price), PRODUCTS_PER_SLOT);
+                    productDispenser = new Dispenser(new Gum(slotId, productName, price), inventoryFormatter, PRODUCTS_PER_SLOT);
 
                     break;
                 default:
@@ -211,14 +230,14 @@ public final class VendingMachine {
     //private Scanner fileReader;
     private FileWriter fileWriter;
     private BigDecimal currentBalance;
-    private LocalDate dateOfOperation;
-    private String selectedProduct;
     private HashMap<String, Dispenser> inventoryMap;
     private List<Dispenser> inventoryList;
+    private String[] inventoryDisplayBuffer;
     private PrintWriter consoleOut;
 
     private final int PRODUCTS_PER_SLOT;
     private static final String ADD_FUNDS_LOG_TEXT = "FEED MONEY";
     private static final String CHANGE_LOG_TEXT = "GIVE CHANGE";
+    private static final String SOLD_OUT_TEXT = "SOLD OUT";
     private final static NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(Locale.US);
 }

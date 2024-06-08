@@ -22,14 +22,11 @@ public abstract class InventoryProduct implements IDispensable {
     }
 
     @Override
-    public String getDescription() { return product; };
+    public String getID() { return slotId; }
     @Override
-    public BigDecimal getPrice(){
-        return price;
-    }
-    public String getSlotId() {
-        return slotId;
-    }
+    public String getDescription() { return product; }
+    @Override
+    public BigDecimal getPrice() { return price; }
 
     //Variables for the products
     private final String slotId;
