@@ -30,7 +30,7 @@ public final class Dispenser implements IDispensable {
 
     @Override
     public String toString() {
-        String remainingText = (dispenseCount > 0) ? "X" + dispenseCount : "SOLD OUT";
+        String remainingText = (dispenseCount > 0) ? "   x" + dispenseCount : "SOLD OUT";
 
         return textFormatter.format(new String[]{
                 dispensedItem.getID(),
