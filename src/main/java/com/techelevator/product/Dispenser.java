@@ -5,10 +5,11 @@ import com.techelevator.format.ColumnTextFormatter;
 import java.math.BigDecimal;
 
 public final class Dispenser implements IDispensable {
-    public Dispenser(IDispensable item, ColumnTextFormatter textFormatter, int dispenseCount) {
+    public Dispenser(IDispensable item, ColumnTextFormatter textFormatter, int dispenseCount, int displayIndex) {
         this.dispensedItem = item;
         this.textFormatter = textFormatter;
         this.dispenseCount = dispenseCount;
+        this.displayIndex = displayIndex;
     }
 
     @Override
@@ -41,8 +42,10 @@ public final class Dispenser implements IDispensable {
     }
 
     public int getRemainingCount() { return dispenseCount; }
+    public int getDisplayIndex() { return displayIndex; }
 
     private final IDispensable dispensedItem;
     private final ColumnTextFormatter textFormatter;
     private int dispenseCount;
+    private int displayIndex;
 }
