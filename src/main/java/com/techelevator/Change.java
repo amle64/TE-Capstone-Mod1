@@ -79,7 +79,7 @@ public class Change {
 
     private final BigDecimal total;
     private final int[] numberOfCoins = new int[]{0, 0, 0, 0, 0};
-    private String displayChangeMsg = "You have ";
+    private String displayChangeMsg = "Your change is ";
 
     //private final static BigDecimal dollar = BigDecimal.valueOf(1.00);
     private final static BigDecimal quarter = BigDecimal.valueOf(0.25);
