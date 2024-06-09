@@ -2,12 +2,15 @@ package com.techelevator;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Change {
     //Constructor
     public Change(BigDecimal total) {
         this.total = total;
         BigDecimal remainder = total;
+        List<MoneyValue> numberOfCoins = new ArrayList<>();
 
         if(total.compareTo(BigDecimal.ZERO)==0){
             displayChangeMsg ="Your total is zero, so no change is provided.";
@@ -15,9 +18,11 @@ public class Change {
         }
 
         //Handles all whole numbers greater than $1
-        if (total.compareTo(BigDecimal.ONE) > 0) {
-            numberOfCoins[dollarIndex] = total.intValue();
-            remainder = remainder.subtract(BigDecimal.valueOf(numberOfCoins[dollarIndex]));
+        if (total.compareTo(BigDecimal.ONE) >= 0) {
+
+            numberOfCoins.add(new MoneyValue(dollarIndex,total.intValue()));
+
+            remainder = remainder.subtract(BigDecimal.valueOf(numberOfCoins.get(dollarIndex).value));
         }
 
         //Ends method when change is zero
@@ -35,16 +40,20 @@ public class Change {
 
                 switch (i) {
                     case 0:
-                        numberOfCoins[quarterIndex] = coinMaxAmount.intValue();
+                       // numberOfCoins.set(quarterIndex, coinMaxAmount.intValue());
+                        numberOfCoins.add(new MoneyValue(quarterIndex,coinMaxAmount.intValue()));
                         break;
                     case 1:
-                        numberOfCoins[dimeIndex] = coinMaxAmount.intValue();
+                      //  numberOfCoins.set(dimeIndex, coinMaxAmount.intValue());
+                        numberOfCoins.add(new MoneyValue(dimeIndex,coinMaxAmount.intValue()));
                         break;
                     case 2:
-                        numberOfCoins[nickelIndex] = coinMaxAmount.intValue();
+                      //  numberOfCoins.set(nickelIndex, coinMaxAmount.intValue());
+                        numberOfCoins.add(new MoneyValue(nickelIndex, coinMaxAmount.intValue()));
                         break;
                     case 3:
-                        numberOfCoins[pennyIndex] = coinMaxAmount.intValue();
+                     //   numberOfCoins.set(pennyIndex, coinMaxAmount.intValue());
+                        numberOfCoins.add(new MoneyValue(pennyIndex, coinMaxAmount.intValue()));
                         break;
                 }
 
@@ -52,21 +61,30 @@ public class Change {
 
         }
 
-        for (int i = 0; i < numberOfCoins.length; i++) {
+        for (int i = 0;i<numberOfCoins.size();i++){
 
-            int coinCount = numberOfCoins[i];
-            if (coinCount == 0) {
+            MoneyValue moneyValue = numberOfCoins.get(i);
+            String[] coinTexts = null;
+            coinTexts = (moneyValue.value > 1) ? coinTextPlural : coinTextSingular;
+
+            if(moneyValue.value == 0){
                 continue;
             }
 
-            String[] coinTexts = null;
-            coinTexts = (coinCount > 1) ? coinTextPlural : coinTextSingular;
-
-            if (i == numberOfCoins.length - 1) {
-                displayChangeMsg = displayChangeMsg.concat(String.format("and %d %s", coinCount, coinTexts[i]));
-            } else {
-                displayChangeMsg = displayChangeMsg.concat(String.format("%d %s, ", coinCount, coinTexts[i]));
+            if(numberOfCoins.size()==1){
+                displayChangeMsg = displayChangeMsg.concat(String.format("%d %s.",moneyValue.value,coinTexts[moneyValue.textIndex]));
+                continue;
+            } else if(i==numberOfCoins.size()-1){
+                displayChangeMsg = displayChangeMsg.concat(String.format("and %d %s.",moneyValue.value, coinTexts[moneyValue.textIndex]));
+                continue;
             }
+            if(numberOfCoins.size()==2){
+                displayChangeMsg = displayChangeMsg.concat(String.format("%d %s ",moneyValue.value, coinTexts[moneyValue.textIndex]));
+            } else {
+                displayChangeMsg = displayChangeMsg.concat(String.format("%d %s, ",moneyValue.value, coinTexts[moneyValue.textIndex]));
+
+            }
+
         }
 
     }
@@ -78,7 +96,6 @@ public class Change {
     public BigDecimal getTotal() { return total; }
 
     private final BigDecimal total;
-    private final int[] numberOfCoins = new int[]{0, 0, 0, 0, 0};
     private String displayChangeMsg = "Your change is ";
 
     //private final static BigDecimal dollar = BigDecimal.valueOf(1.00);
