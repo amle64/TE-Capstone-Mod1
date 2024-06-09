@@ -1,23 +1,31 @@
 package com.techelevator.format;
 
+import com.techelevator.exceptions.ColumnCountMismatchException;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class ColumnTextFormatter {
     public ColumnTextFormatter(int numberOfColumns) {
         this.NUMBER_OF_COLUMNS = numberOfColumns;
+        COLUMN_HEAPS = initHeaps();
+    }
 
-        COLUMN_WIDTHS = new int[NUMBER_OF_COLUMNS];
-        COLUMN_HEAPS = new List[NUMBER_OF_COLUMNS];
+    public ColumnTextFormatter(int numberOfColumns, String[] columnTitles) throws ColumnCountMismatchException {
+        if (columnTitles.length != numberOfColumns) throw new ColumnCountMismatchException();
+
+        this.NUMBER_OF_COLUMNS = numberOfColumns;
+        COLUMN_HEAPS = initHeaps();
 
         for (int i = 0; i < NUMBER_OF_COLUMNS; i++) {
-            COLUMN_HEAPS[i] = new ArrayList<>();
+            String columnTitle = columnTitles[i];
+            addColumnWidth(columnTitle, i);
         }
     }
 
-    public String format(String[] columnEntries, char separatorCharacter, int padding) {
+    public String format(String[] columnEntries, char separatorCharacter, int padding) throws ColumnCountMismatchException {
         StringBuilder formattedString = new StringBuilder();
-        if (columnEntries.length > NUMBER_OF_COLUMNS) return formattedString.toString();
+        if (columnEntries.length > NUMBER_OF_COLUMNS) throw new ColumnCountMismatchException();
 
         String token;
         int printedLength, columnWidth;
@@ -44,6 +52,8 @@ public class ColumnTextFormatter {
 
         if (columnHeap.isEmpty()) {
             columnHeap.add(entryText.length());
+            calculateRowWidth();
+            return;
         }
 
         columnHeap.add(entryText.length());
@@ -56,8 +66,34 @@ public class ColumnTextFormatter {
         return COLUMN_HEAPS[column].get(0);
     }
 
+    public int getRowWidth(int padding) {
+        return padding * 2 * NUMBER_OF_COLUMNS + totalRowTextCount + NUMBER_OF_COLUMNS;
+    }
+
+    private List[] initHeaps() {
+        List<Integer>[] heaps = new List[NUMBER_OF_COLUMNS];
+
+        for (int i = 0; i < NUMBER_OF_COLUMNS; i++) {
+            heaps[i] = new ArrayList<>();
+        }
+
+        return heaps;
+    }
+
+    private void calculateRowWidth() {
+        totalRowTextCount = 0;
+        for (List<Integer> columnHeap : COLUMN_HEAPS) {
+            if (columnHeap.isEmpty()) continue;
+
+            totalRowTextCount += columnHeap.get(0);
+        }
+    }
+
     private void maxHeapify(List<Integer> heap, int currentIndex) {
-        if (currentIndex <= 0) return;
+        if (currentIndex <= 0) {
+            calculateRowWidth();
+            return;
+        }
 
         int parentIndex = (currentIndex - 1) / 2;
         Integer parentValue = heap.get(parentIndex);
@@ -71,7 +107,7 @@ public class ColumnTextFormatter {
         }
     }
 
+    private int totalRowTextCount;
     private final int NUMBER_OF_COLUMNS;
-    private final int[] COLUMN_WIDTHS;
     private final List<Integer>[] COLUMN_HEAPS;
 }

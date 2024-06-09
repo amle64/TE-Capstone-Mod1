@@ -31,13 +31,17 @@ public final class VendingMachine {
 
         consoleOut = new PrintWriter(outputStream);
         currentBalance = BigDecimal.ZERO;
-        inventoryList = new ArrayList<>();
-        inventoryMap = loadInventory(readInventoryFile(inventoryFilepath));
+
+        INVENTORY_LIST = new ArrayList<>();
+        INVENTORY_MAP = loadInventory(readInventoryFile(inventoryFilepath));
+        INVENTORY_DISPLAY_BUFFER = new String[INVENTORY_LIST.size() + ITEM_DISPLAY_LINE_COUNT];
+
+        buildInventoryTitle();
         buildInventoryDisplay();
     }
 
     public void displayItems() {
-        for (String productDisplay : inventoryDisplayBuffer) {
+        for (String productDisplay : INVENTORY_DISPLAY_BUFFER) {
             consoleOut.println(productDisplay);
         }
 
@@ -46,11 +50,11 @@ public final class VendingMachine {
 
     public void addFunds(BigDecimal funds) {
         if (funds.compareTo(BigDecimal.ZERO) < 0) {
-            consoleOut.printf("Please re-enter your amount of $$ that is not negative! %s is not a valid deposit.\n",currencyFormat.format(funds));
+            consoleOut.printf("\nPlease re-enter your amount of $$ that is not negative! %s is not a valid deposit.\n",currencyFormat.format(funds));
             consoleOut.flush();
             return;
         } else if (funds.compareTo(BigDecimal.ZERO)==0){
-            consoleOut.printf("Please re-enter your amount of $$ that is not zero! %s is not a valid deposit.\n",currencyFormat.format(funds));
+            consoleOut.printf("\nPlease re-enter your amount of $$ that is not zero! %s is not a valid deposit.\n",currencyFormat.format(funds));
             consoleOut.flush();
             return;
         }
@@ -60,21 +64,21 @@ public final class VendingMachine {
     }
 
     public void selectProduct(String slotNumber) {
-        if (!inventoryMap.containsKey(slotNumber)) {
-            consoleOut.println("Invalid Slot Number!");
+        if (!INVENTORY_MAP.containsKey(slotNumber)) {
+            consoleOut.println("\nInvalid Slot Number!");
             consoleOut.flush();
             return;
         }
 
-        Dispenser product = inventoryMap.get(slotNumber);
+        Dispenser product = INVENTORY_MAP.get(slotNumber);
         if (currentBalance.subtract(product.getPrice()).compareTo(BigDecimal.ZERO) < 0) {
-            consoleOut.println("Not enough funds! Please add more!");
+            consoleOut.println("\nNot enough funds! Please add more!");
             consoleOut.flush();
             return;
         }
 
         if (product.getRemainingCount() == 0) {
-            consoleOut.printf("Sorry we're all out %s!\n", product.getDescription());
+            consoleOut.printf("\nSorry we're all out %s!\n", product.getDescription());
             consoleOut.flush();
             return;
         }
@@ -107,7 +111,7 @@ public final class VendingMachine {
         for (int i = 0; i < 14-transactionName.length(); i++) {
             transaction = transaction.concat(" ");
         }
-        consoleOut.println("*******************Transaction Message*******************");
+        consoleOut.println("\n*******************Transaction Message*******************");
         transaction = transaction.concat(String.format("| %s  %s\n",currencyFormat.format(cost.doubleValue()), currencyFormat.format(balance.doubleValue())));
 
 
@@ -126,8 +130,8 @@ public final class VendingMachine {
 
     public void printSalesReport(){
         Dispenser product;
-        for (int i = 0; i < inventoryList.size(); i++){
-            product = inventoryList.get(i);
+        for (int i = 0; i < INVENTORY_LIST.size(); i++){
+            product = INVENTORY_LIST.get(i);
             consoleOut.printf("| %s|%d\n", product.getDescription(), PRODUCTS_PER_SLOT - product.getRemainingCount());
         }
         consoleOut.flush();
@@ -147,17 +151,21 @@ public final class VendingMachine {
         return new String[] {date,time};
     }
 
-    private void buildInventoryDisplay() {
-        inventoryDisplayBuffer = new String[inventoryList.size()];
+    private void buildInventoryTitle() {
+        INVENTORY_DISPLAY_BUFFER[0] = "=".repeat(inventoryFormatter.getRowWidth(2));
+        INVENTORY_DISPLAY_BUFFER[1] = inventoryFormatter.format(ITEM_DISPLAY_TITLE_TEXT, '|', 2);
+        INVENTORY_DISPLAY_BUFFER[2] = "=".repeat(inventoryFormatter.getRowWidth(2));
+    }
 
-        for (int i = 0; i < inventoryDisplayBuffer.length; i++) {
-            inventoryDisplayBuffer[i] = inventoryList.get(i).toString();
+    private void buildInventoryDisplay() {
+        for (int i = 3; i < INVENTORY_DISPLAY_BUFFER.length; i++) {
+            INVENTORY_DISPLAY_BUFFER[i] = INVENTORY_LIST.get(i - 3).toString();
         }
     }
 
     private HashMap<String, Dispenser> loadInventory(List<String[]> tokenLines) throws InventoryLoadException {
         HashMap<String, Dispenser> loadedInv = new HashMap<>();
-        ColumnTextFormatter inventoryFormatter = new ColumnTextFormatter(tokenLines.get(0).length);
+        inventoryFormatter = new ColumnTextFormatter(tokenLines.get(0).length, ITEM_DISPLAY_TITLE_TEXT);
 
         inventoryFormatter.addColumnWidth(SOLD_OUT_TEXT, 3);
 
@@ -170,10 +178,11 @@ public final class VendingMachine {
 
             inventoryFormatter.addColumnWidth(slotId, 0);
             inventoryFormatter.addColumnWidth(productName, 1);
-            inventoryFormatter.addColumnWidth(priceString, 2);
 
             try {
                 price = new BigDecimal(priceString);
+                inventoryFormatter.addColumnWidth(currencyFormat.format(price.doubleValue()), 2);
+
             } catch (NumberFormatException ex) {
                 throw new InventoryLoadException(String.format("%s, is not a valid number!", priceString));
             }
@@ -201,7 +210,7 @@ public final class VendingMachine {
                     throw new InvalidProductTypeException();
             }
 
-            inventoryList.add(productDispenser);
+            INVENTORY_LIST.add(productDispenser);
             loadedInv.put(slotId, productDispenser);
         }
 
@@ -228,14 +237,18 @@ public final class VendingMachine {
     }
 
     //private Scanner fileReader;
+    private PrintWriter consoleOut;
     private FileWriter fileWriter;
     private BigDecimal currentBalance;
-    private HashMap<String, Dispenser> inventoryMap;
-    private List<Dispenser> inventoryList;
-    private String[] inventoryDisplayBuffer;
-    private PrintWriter consoleOut;
+    private ColumnTextFormatter inventoryFormatter;
 
     private final int PRODUCTS_PER_SLOT;
+    private final int ITEM_DISPLAY_LINE_COUNT = 3;
+    private final HashMap<String, Dispenser> INVENTORY_MAP;
+    private final List<Dispenser> INVENTORY_LIST;
+    private final String[] INVENTORY_DISPLAY_BUFFER;
+
+    private static final String[] ITEM_DISPLAY_TITLE_TEXT = new String[] { "ID", "PRODUCT NAME", "COST", "AVAILABLE" };
     private static final String ADD_FUNDS_LOG_TEXT = "FEED MONEY";
     private static final String CHANGE_LOG_TEXT = "GIVE CHANGE";
     private static final String SOLD_OUT_TEXT = "SOLD OUT";
