@@ -41,7 +41,7 @@ public class ColumnTextFormatter {
             formattedString.append(" ".repeat(Math.max(0, padding)));
 
             formattedString.append(" ".repeat(Math.max(0, columnWidth - printedLength)));
-            formattedString.append("|");
+            formattedString.append(separatorCharacter);
         }
 
         return formattedString.toString();
