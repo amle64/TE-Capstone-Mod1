@@ -34,10 +34,14 @@ public final class VendingMachine {
 
         INVENTORY_LIST = new ArrayList<>();
         INVENTORY_MAP = loadInventory(readInventoryFile(inventoryFilepath));
-        INVENTORY_DISPLAY_BUFFER = new String[INVENTORY_LIST.size() + ITEM_DISPLAY_LINE_COUNT];
+        INVENTORY_DISPLAY_BUFFER = new String[INVENTORY_LIST.size() + TITLE_LINE_COUNT];
+        SALES_REPORT_BUFFER = new String[INVENTORY_LIST.size() + TITLE_LINE_COUNT + 1];
 
         buildInventoryTitle();
+        buildSalesReportTitle();
+
         buildInventoryDisplay();
+        buildSalesReport();
     }
 
     public void displayItems() {
@@ -50,11 +54,11 @@ public final class VendingMachine {
 
     public void addFunds(BigDecimal funds) {
         if (funds.compareTo(BigDecimal.ZERO) < 0) {
-            consoleOut.printf("\nPlease re-enter your amount of $$ that is not negative! %s is not a valid deposit.\n",currencyFormat.format(funds));
+            consoleOut.printf("\nPlease re-enter your amount of $$ that is not negative! %s is not a valid deposit.\n", CURRENCY_INSTANCE.format(funds));
             consoleOut.flush();
             return;
         } else if (funds.compareTo(BigDecimal.ZERO)==0){
-            consoleOut.printf("\nPlease re-enter your amount of $$ that is not zero! %s is not a valid deposit.\n",currencyFormat.format(funds));
+            consoleOut.printf("\nPlease re-enter your amount of $$ that is not zero! %s is not a valid deposit.\n", CURRENCY_INSTANCE.format(funds));
             consoleOut.flush();
             return;
         }
@@ -87,7 +91,9 @@ public final class VendingMachine {
 
         product.dispense();
 
-        buildInventoryDisplay();
+        buildInventoryDisplay(product.getDisplayIndex());
+        buildSalesReport(product.getDisplayIndex());
+
         printTransaction(String.format("%s %s", product.getDescription(), slotNumber), product.getPrice(), currentBalance);
     }
 
@@ -112,7 +118,7 @@ public final class VendingMachine {
             transaction = transaction.concat(" ");
         }
         consoleOut.println("\n*******************Transaction Message*******************");
-        transaction = transaction.concat(String.format("| %s  %s\n",currencyFormat.format(cost.doubleValue()), currencyFormat.format(balance.doubleValue())));
+        transaction = transaction.concat(String.format("| %s  %s\n", CURRENCY_INSTANCE.format(cost.doubleValue()), CURRENCY_INSTANCE.format(balance.doubleValue())));
 
 
         consoleOut.print(transaction);
@@ -129,11 +135,21 @@ public final class VendingMachine {
     }
 
     public void printSalesReport(){
-        Dispenser product;
-        for (int i = 0; i < INVENTORY_LIST.size(); i++){
-            product = INVENTORY_LIST.get(i);
-            consoleOut.printf("| %s|%d\n", product.getDescription(), PRODUCTS_PER_SLOT - product.getRemainingCount());
+        String[] dateTime = dateTimeArray("MM-dd-yyyy","kk-mm-ss");
+        File salesFile = new File(String.format("%s_%s_sales.txt", dateTime[0], dateTime[1]));
+
+        try(PrintWriter salesWriter = new PrintWriter(salesFile)) {
+            for (String saleEntry : SALES_REPORT_BUFFER) {
+                salesWriter.println(saleEntry);
+                consoleOut.println(saleEntry);
+            }
+
+            salesWriter.flush();
+
+        } catch (FileNotFoundException ex) {
+            consoleOut.println("Error writing sales report to file!");
         }
+
         consoleOut.flush();
     }
 
@@ -151,22 +167,12 @@ public final class VendingMachine {
         return new String[] {date,time};
     }
 
-    private void buildInventoryTitle() {
-        INVENTORY_DISPLAY_BUFFER[0] = "=".repeat(inventoryFormatter.getRowWidth(2));
-        INVENTORY_DISPLAY_BUFFER[1] = inventoryFormatter.format(ITEM_DISPLAY_TITLE_TEXT, '|', 2);
-        INVENTORY_DISPLAY_BUFFER[2] = "=".repeat(inventoryFormatter.getRowWidth(2));
-    }
-
-    private void buildInventoryDisplay() {
-        for (int i = 3; i < INVENTORY_DISPLAY_BUFFER.length; i++) {
-            INVENTORY_DISPLAY_BUFFER[i] = INVENTORY_LIST.get(i - 3).toString();
-        }
-    }
-
     private HashMap<String, Dispenser> loadInventory(List<String[]> tokenLines) throws InventoryLoadException {
         HashMap<String, Dispenser> loadedInv = new HashMap<>();
         inventoryFormatter = new ColumnTextFormatter(tokenLines.get(0).length, ITEM_DISPLAY_TITLE_TEXT);
+        salesReportFormatter = new ColumnTextFormatter(2, SALES_REPORT_TITLE_TEXT);
 
+        salesReportFormatter.addColumnWidth(SALES_TOTAL_TEXT, 0);
         inventoryFormatter.addColumnWidth(SOLD_OUT_TEXT, 3);
 
         for (String[] tokenLine : tokenLines) {
@@ -178,32 +184,37 @@ public final class VendingMachine {
 
             inventoryFormatter.addColumnWidth(slotId, 0);
             inventoryFormatter.addColumnWidth(productName, 1);
+            salesReportFormatter.addColumnWidth(productName, 0);
 
             try {
                 price = new BigDecimal(priceString);
-                inventoryFormatter.addColumnWidth(currencyFormat.format(price.doubleValue()), 2);
+                String currencyFormat = CURRENCY_INSTANCE.format(price.doubleValue());
+
+                inventoryFormatter.addColumnWidth(currencyFormat, 2);
+                salesReportFormatter.addColumnWidth(currencyFormat, 1);
 
             } catch (NumberFormatException ex) {
                 throw new InventoryLoadException(String.format("%s, is not a valid number!", priceString));
             }
 
             Dispenser productDispenser = null;
+            int productDisplayIndex = INVENTORY_LIST.size() + TITLE_LINE_COUNT;
 
             switch (productType) {
                 case "Chip":
-                    productDispenser = new Dispenser(new Chip(slotId, productName, price), inventoryFormatter, PRODUCTS_PER_SLOT);
+                    productDispenser = new Dispenser(new Chip(slotId, productName, price), inventoryFormatter, PRODUCTS_PER_SLOT, productDisplayIndex);
 
                     break;
                 case "Candy":
-                    productDispenser = new Dispenser(new Candy(slotId, productName, price), inventoryFormatter, PRODUCTS_PER_SLOT);
+                    productDispenser = new Dispenser(new Candy(slotId, productName, price), inventoryFormatter, PRODUCTS_PER_SLOT, productDisplayIndex);
 
                     break;
                 case "Drink":
-                    productDispenser = new Dispenser(new Drink(slotId, productName, price), inventoryFormatter, PRODUCTS_PER_SLOT);
+                    productDispenser = new Dispenser(new Drink(slotId, productName, price), inventoryFormatter, PRODUCTS_PER_SLOT, productDisplayIndex);
 
                     break;
                 case "Gum":
-                    productDispenser = new Dispenser(new Gum(slotId, productName, price), inventoryFormatter, PRODUCTS_PER_SLOT);
+                    productDispenser = new Dispenser(new Gum(slotId, productName, price), inventoryFormatter, PRODUCTS_PER_SLOT, productDisplayIndex);
 
                     break;
                 default:
@@ -236,21 +247,101 @@ public final class VendingMachine {
         return serializedInv;
     }
 
+    private void buildInventoryTitle() {
+        INVENTORY_DISPLAY_BUFFER[0] = "=".repeat(inventoryFormatter.getRowWidth(2));
+        INVENTORY_DISPLAY_BUFFER[1] = inventoryFormatter.format(ITEM_DISPLAY_TITLE_TEXT, '|', 2);
+        INVENTORY_DISPLAY_BUFFER[2] = "=".repeat(inventoryFormatter.getRowWidth(2));
+    }
+
+    private void buildSalesReportTitle() {
+        SALES_REPORT_BUFFER[0] = "=".repeat(salesReportFormatter.getRowWidth(2));
+        SALES_REPORT_BUFFER[1] = salesReportFormatter.format(SALES_REPORT_TITLE_TEXT, '|', 2);
+        SALES_REPORT_BUFFER[2] = "=".repeat(salesReportFormatter.getRowWidth(2));
+    }
+
+    private void buildInventoryDisplay() {
+        for (int i = TITLE_LINE_COUNT; i < INVENTORY_DISPLAY_BUFFER.length; i++) {
+            INVENTORY_DISPLAY_BUFFER[i] = INVENTORY_LIST.get(i - TITLE_LINE_COUNT).toString();
+        }
+    }
+
+    private void buildInventoryDisplay(int entryIndex) {
+        INVENTORY_DISPLAY_BUFFER[entryIndex] = INVENTORY_LIST.get(entryIndex - TITLE_LINE_COUNT).toString();
+    }
+
+    private void buildSalesReport() {
+        totalSales = BigDecimal.ZERO;
+        String totalMoney = CURRENCY_INSTANCE.format(totalSales.doubleValue());
+
+        salesReportFormatter.addColumnWidth(totalMoney, 1);
+
+        for (int i = TITLE_LINE_COUNT; i < SALES_REPORT_BUFFER.length - 1; i++) {
+            Dispenser product = INVENTORY_LIST.get(i - TITLE_LINE_COUNT);
+
+            SALES_REPORT_BUFFER[i] = salesReportFormatter.format(new String[] {
+                    product.getDescription(), String.valueOf(PRODUCTS_PER_SLOT - product.getRemainingCount())
+            }, '|', 2);
+        }
+
+        SALES_REPORT_BUFFER[INVENTORY_LIST.size() + TITLE_LINE_COUNT] = salesReportFormatter.format(new String[] {
+                SALES_TOTAL_TEXT, totalMoney
+        }, '|', 2);
+    }
+
+    private void buildSalesReport(int entryIndex) {
+        Dispenser entry = INVENTORY_LIST.get(entryIndex - TITLE_LINE_COUNT);
+        totalSales = totalSales.add(entry.getPrice());
+
+        String totalMoney = CURRENCY_INSTANCE.format(totalSales.doubleValue());
+        int previousMaxWidth = salesReportFormatter.getMaxColumnWidth(1);
+
+        salesReportFormatter.addColumnWidth(totalMoney, 1);
+        if (salesReportFormatter.getMaxColumnWidth(1) != previousMaxWidth) {
+            /* If we have a new maxWidth for column 1 because of a new Total
+             * go through all sales reports and update their buffers */
+            for (int i = TITLE_LINE_COUNT; i < SALES_REPORT_BUFFER.length - 1; i++) {
+                Dispenser product = INVENTORY_LIST.get(i - TITLE_LINE_COUNT);
+
+                SALES_REPORT_BUFFER[i] = salesReportFormatter.format(new String[] {
+                        product.getDescription(), String.valueOf(PRODUCTS_PER_SLOT - product.getRemainingCount())
+                }, '|', 2);
+            }
+        }
+        else {
+            /* If maxWidth is still the same the format hasn't changed, and we
+             * can just update the single buffer for this specific entry */
+            SALES_REPORT_BUFFER[entryIndex] = salesReportFormatter.format(new String[] {
+                    entry.getDescription(), String.valueOf(PRODUCTS_PER_SLOT - entry.getRemainingCount())
+            }, '|', 2);
+        }
+
+        /* Update the buffer for the Total Sales entry row */
+        SALES_REPORT_BUFFER[INVENTORY_LIST.size() + TITLE_LINE_COUNT] = salesReportFormatter.format(new String[] {
+                SALES_TOTAL_TEXT, totalMoney
+        }, '|', 2);
+
+    }
+
     //private Scanner fileReader;
     private PrintWriter consoleOut;
     private FileWriter fileWriter;
     private BigDecimal currentBalance;
+    private BigDecimal totalSales;
     private ColumnTextFormatter inventoryFormatter;
+    private ColumnTextFormatter salesReportFormatter;
 
     private final int PRODUCTS_PER_SLOT;
-    private final int ITEM_DISPLAY_LINE_COUNT = 3;
+    private final int TITLE_LINE_COUNT = 3;
     private final HashMap<String, Dispenser> INVENTORY_MAP;
     private final List<Dispenser> INVENTORY_LIST;
     private final String[] INVENTORY_DISPLAY_BUFFER;
+    private final String[] SALES_REPORT_BUFFER;
 
     private static final String[] ITEM_DISPLAY_TITLE_TEXT = new String[] { "ID", "PRODUCT NAME", "COST", "AVAILABLE" };
+    private static final String[] SALES_REPORT_TITLE_TEXT = new String[] { "PRODUCT NAME", "SOLD" };
+    private static final String SALES_TOTAL_TEXT = "**TOTAL SALES**";
     private static final String ADD_FUNDS_LOG_TEXT = "FEED MONEY";
     private static final String CHANGE_LOG_TEXT = "GIVE CHANGE";
     private static final String SOLD_OUT_TEXT = "SOLD OUT";
-    private final static NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(Locale.US);
+    private static final NumberFormat CURRENCY_INSTANCE = NumberFormat.getCurrencyInstance(Locale.US);
 }
