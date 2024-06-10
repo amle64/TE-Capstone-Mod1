@@ -42,27 +42,27 @@ public class VendingMachineTest {
 
         printTransactionMethod.invoke(vendingMachine, "CHARGEBACK", new BigDecimal("5.00"), new BigDecimal("25.00"));
 
-        String transactionText = output.toString().split("\n")[1];
+        String transactionText = output.toString().split("\n")[2];
         String transactionTextNoTime = transactionText.replace(transactionText.substring(10, 23), "");
         output.reset();
 
-        Assert.assertEquals(String.format("%s  CHARGEBACK    | $5.00  $25.00\r\n", todayDate), transactionTextNoTime);
+        Assert.assertEquals(String.format("%s  CHARGEBACK    | $5.00  $25.00", todayDate), transactionTextNoTime);
 
         printTransactionMethod.invoke(vendingMachine, "FEED MONEY", new BigDecimal("23.50"), new BigDecimal("1.50"));
 
-        transactionText = output.toString().split("\n")[1];
+        transactionText = output.toString().split("\n")[2];
         transactionTextNoTime = transactionText.replace(transactionText.substring(10, 23), "");
         output.reset();
 
-        Assert.assertEquals(String.format("%s  FEED MONEY    | $23.50  $1.50\r\n\n", todayDate), transactionTextNoTime);
+        Assert.assertEquals(String.format("%s  FEED MONEY    | $23.50  $1.50", todayDate), transactionTextNoTime);
 
         printTransactionMethod.invoke(vendingMachine, "CHANGE", new BigDecimal("5.25"), new BigDecimal("6.75"));
 
-        transactionText = output.toString().split("\n")[1];
+        transactionText = output.toString().split("\n")[2];
         transactionTextNoTime = transactionText.replace(transactionText.substring(10, 23), "");
         output.reset();
 
-        Assert.assertEquals(String.format("%s  CHANGE        | $5.25  $6.75\r\n\n", todayDate), transactionTextNoTime);
+        Assert.assertEquals(String.format("%s  CHANGE        | $5.25  $6.75", todayDate), transactionTextNoTime);
     }
 
     @Test

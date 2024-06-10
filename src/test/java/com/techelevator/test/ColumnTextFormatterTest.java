@@ -16,7 +16,7 @@ public class ColumnTextFormatterTest {
     @Before
     public void Init() throws NoSuchFieldException, NoSuchMethodException {
         formatter = new ColumnTextFormatter(numColumns);
-        internal_ColumnWidths = formatter.getClass().getDeclaredField("COLUMN_WIDTHS");
+
         internal_ColumnHeaps = formatter.getClass().getDeclaredField("COLUMN_HEAPS");
         internal_HeapifyMethod = formatter.getClass().getDeclaredMethod("maxHeapify", List.class, int.class);
 
@@ -26,14 +26,12 @@ public class ColumnTextFormatterTest {
             testTextInputs.add(productInput.split("\\|"));
         }
 
-        internal_ColumnWidths.setAccessible(true);
         internal_ColumnHeaps.setAccessible(true);
         internal_HeapifyMethod.setAccessible(true);
     }
 
     @Test
     public void constructor_assigns_arrays_correctly() throws IllegalAccessException {
-        int[] columnWidths = (int[])internal_ColumnWidths.get(formatter);
         List<Integer>[] columnHeaps = (List[])internal_ColumnHeaps.get(formatter);
 
         Assert.assertEquals(numColumns, columnHeaps.length);
@@ -103,7 +101,6 @@ public class ColumnTextFormatterTest {
     private String[] productInputs;
     private List<String[]> testTextInputs;
 
-    private Field internal_ColumnWidths;
     private Field internal_ColumnHeaps;
     private Method internal_HeapifyMethod;
 }
