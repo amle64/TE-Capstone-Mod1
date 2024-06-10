@@ -42,7 +42,8 @@ public class VendingMenu {
         BigDecimal input = BigDecimal.ZERO;
 
         try {
-            input = new BigDecimal(in.nextLine());
+            String money = in.nextLine().replace("$", "");
+            input = new BigDecimal(money);
         } catch(NumberFormatException ex) {
             out.println("Input is not a number!");
             out.flush();
