@@ -117,9 +117,9 @@ public final class VendingMachine {
         for (int i = 0; i < 14-transactionName.length(); i++) {
             transaction = transaction.concat(" ");
         }
+
         consoleOut.println("\n*******************Transaction Message*******************");
         transaction = transaction.concat(String.format("| %s  %s\n", CURRENCY_INSTANCE.format(cost.doubleValue()), CURRENCY_INSTANCE.format(balance.doubleValue())));
-
 
         consoleOut.print(transaction);
         consoleOut.flush();
@@ -322,7 +322,6 @@ public final class VendingMachine {
 
     }
 
-    //private Scanner fileReader;
     private PrintWriter consoleOut;
     private FileWriter fileWriter;
     private BigDecimal currentBalance;
