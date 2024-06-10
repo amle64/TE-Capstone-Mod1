@@ -248,15 +248,15 @@ public final class VendingMachine {
     }
 
     private void buildInventoryTitle() {
-        INVENTORY_DISPLAY_BUFFER[0] = "=".repeat(inventoryFormatter.getRowWidth(2));
-        INVENTORY_DISPLAY_BUFFER[1] = inventoryFormatter.format(ITEM_DISPLAY_TITLE_TEXT, '|', 2);
-        INVENTORY_DISPLAY_BUFFER[2] = "=".repeat(inventoryFormatter.getRowWidth(2));
+        INVENTORY_DISPLAY_BUFFER[0] = "=".repeat(inventoryFormatter.getRowWidth(ROW_PADDING));
+        INVENTORY_DISPLAY_BUFFER[1] = inventoryFormatter.format(ITEM_DISPLAY_TITLE_TEXT, '|', ROW_PADDING);
+        INVENTORY_DISPLAY_BUFFER[2] = "=".repeat(inventoryFormatter.getRowWidth(ROW_PADDING));
     }
 
     private void buildSalesReportTitle() {
-        SALES_REPORT_BUFFER[0] = "=".repeat(salesReportFormatter.getRowWidth(2));
-        SALES_REPORT_BUFFER[1] = salesReportFormatter.format(SALES_REPORT_TITLE_TEXT, '|', 2);
-        SALES_REPORT_BUFFER[2] = "=".repeat(salesReportFormatter.getRowWidth(2));
+        SALES_REPORT_BUFFER[0] = "=".repeat(salesReportFormatter.getRowWidth(ROW_PADDING));
+        SALES_REPORT_BUFFER[1] = salesReportFormatter.format(SALES_REPORT_TITLE_TEXT, '|', ROW_PADDING);
+        SALES_REPORT_BUFFER[2] = "=".repeat(salesReportFormatter.getRowWidth(ROW_PADDING));
     }
 
     private void buildInventoryDisplay() {
@@ -280,12 +280,12 @@ public final class VendingMachine {
 
             SALES_REPORT_BUFFER[i] = salesReportFormatter.format(new String[] {
                     product.getDescription(), String.valueOf(PRODUCTS_PER_SLOT - product.getRemainingCount())
-            }, '|', 2);
+            }, '|', ROW_PADDING);
         }
 
         SALES_REPORT_BUFFER[INVENTORY_LIST.size() + TITLE_LINE_COUNT] = salesReportFormatter.format(new String[] {
                 SALES_TOTAL_TEXT, totalMoney
-        }, '|', 2);
+        }, '|', ROW_PADDING);
     }
 
     private void buildSalesReport(int entryIndex) {
@@ -304,7 +304,7 @@ public final class VendingMachine {
 
                 SALES_REPORT_BUFFER[i] = salesReportFormatter.format(new String[] {
                         product.getDescription(), String.valueOf(PRODUCTS_PER_SLOT - product.getRemainingCount())
-                }, '|', 2);
+                }, '|', ROW_PADDING);
             }
         }
         else {
@@ -312,13 +312,13 @@ public final class VendingMachine {
              * can just update the single buffer for this specific entry */
             SALES_REPORT_BUFFER[entryIndex] = salesReportFormatter.format(new String[] {
                     entry.getDescription(), String.valueOf(PRODUCTS_PER_SLOT - entry.getRemainingCount())
-            }, '|', 2);
+            }, '|', ROW_PADDING);
         }
 
         /* Update the buffer for the Total Sales entry row */
         SALES_REPORT_BUFFER[INVENTORY_LIST.size() + TITLE_LINE_COUNT] = salesReportFormatter.format(new String[] {
                 SALES_TOTAL_TEXT, totalMoney
-        }, '|', 2);
+        }, '|', ROW_PADDING);
 
     }
 
@@ -331,6 +331,7 @@ public final class VendingMachine {
     private ColumnTextFormatter salesReportFormatter;
 
     private final int PRODUCTS_PER_SLOT;
+    private final int ROW_PADDING = 2;
     private final int TITLE_LINE_COUNT = 3;
     private final HashMap<String, Dispenser> INVENTORY_MAP;
     private final List<Dispenser> INVENTORY_LIST;
