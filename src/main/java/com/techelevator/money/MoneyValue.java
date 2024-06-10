@@ -1,4 +1,4 @@
-package com.techelevator;
+package com.techelevator.money;
 
 public class MoneyValue {
     public MoneyValue(int textIndex, int value){

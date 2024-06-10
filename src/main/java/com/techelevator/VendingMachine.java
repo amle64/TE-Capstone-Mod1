@@ -3,6 +3,7 @@ package com.techelevator;
 import com.techelevator.exceptions.InvalidProductTypeException;
 import com.techelevator.exceptions.InventoryLoadException;
 import com.techelevator.format.ColumnTextFormatter;
+import com.techelevator.money.Change;
 import com.techelevator.product.*;
 
 import java.io.*;

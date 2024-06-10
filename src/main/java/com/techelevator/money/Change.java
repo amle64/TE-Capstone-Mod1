@@ -1,4 +1,4 @@
-package com.techelevator;
+package com.techelevator.money;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
