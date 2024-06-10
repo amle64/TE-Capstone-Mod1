@@ -8,7 +8,7 @@ import java.util.List;
 public class Change {
     //Constructor
     public Change(BigDecimal total) {
-        this.total = total;
+        this.TOTAL_CHANGE_VALUE = total;
         BigDecimal remainder = total;
         List<MoneyValue> numberOfCoins = new ArrayList<>();
 
@@ -19,20 +19,18 @@ public class Change {
 
         //Handles all whole numbers greater than $1
         if (total.compareTo(BigDecimal.ONE) >= 0) {
-
-            numberOfCoins.add(new MoneyValue(dollarIndex,total.intValue()));
-
-            remainder = remainder.subtract(BigDecimal.valueOf(numberOfCoins.get(dollarIndex).value));
+            numberOfCoins.add(new MoneyValue(DOLLAR_INDEX,total.intValue()));
+            remainder = remainder.subtract(BigDecimal.valueOf(numberOfCoins.get(DOLLAR_INDEX).value));
         }
 
         //Ends method when change is zero
         if (remainder.compareTo(BigDecimal.ZERO) != 0) {
 
             //Repeats until change is zero
-            for (int i = 0; i < orderArray.length; i++) {
-                BigDecimal coinType = orderArray[i];
-                BigDecimal coinMaxAmount = remainder.divide(coinType, 0, RoundingMode.FLOOR);
-                remainder = remainder.subtract(coinMaxAmount.multiply(coinType));
+            for (int i = 0; i < COIN_VALUES.length; i++) {
+                BigDecimal coinValue = COIN_VALUES[i];
+                BigDecimal coinMaxAmount = remainder.divide(coinValue, 0, RoundingMode.FLOOR);
+                remainder = remainder.subtract(coinMaxAmount.multiply(coinValue));
 
                 if (coinMaxAmount.compareTo(BigDecimal.ZERO) == 0) {
                     continue;
@@ -40,20 +38,16 @@ public class Change {
 
                 switch (i) {
                     case 0:
-                       // numberOfCoins.set(quarterIndex, coinMaxAmount.intValue());
-                        numberOfCoins.add(new MoneyValue(quarterIndex,coinMaxAmount.intValue()));
+                        numberOfCoins.add(new MoneyValue(QUARTER_INDEX,coinMaxAmount.intValue()));
                         break;
                     case 1:
-                      //  numberOfCoins.set(dimeIndex, coinMaxAmount.intValue());
-                        numberOfCoins.add(new MoneyValue(dimeIndex,coinMaxAmount.intValue()));
+                        numberOfCoins.add(new MoneyValue(DIME_INDEX,coinMaxAmount.intValue()));
                         break;
                     case 2:
-                      //  numberOfCoins.set(nickelIndex, coinMaxAmount.intValue());
-                        numberOfCoins.add(new MoneyValue(nickelIndex, coinMaxAmount.intValue()));
+                        numberOfCoins.add(new MoneyValue(NICKEL_INDEX, coinMaxAmount.intValue()));
                         break;
                     case 3:
-                     //   numberOfCoins.set(pennyIndex, coinMaxAmount.intValue());
-                        numberOfCoins.add(new MoneyValue(pennyIndex, coinMaxAmount.intValue()));
+                        numberOfCoins.add(new MoneyValue(PENNY_INDEX, coinMaxAmount.intValue()));
                         break;
                 }
 
@@ -61,11 +55,10 @@ public class Change {
 
         }
 
+        // Assign proper change message //
         for (int i = 0;i<numberOfCoins.size();i++){
-
             MoneyValue moneyValue = numberOfCoins.get(i);
-            String[] coinTexts = null;
-            coinTexts = (moneyValue.value > 1) ? coinTextPlural : coinTextSingular;
+            String[] coinTexts = (moneyValue.value > 1) ? MONEY_TEXT_PLURAL : MONEY_TEXT_SINGULAR;
 
             if(moneyValue.value == 0){
                 continue;
@@ -78,6 +71,7 @@ public class Change {
                 displayChangeMsg = displayChangeMsg.concat(String.format("and %d %s.",moneyValue.value, coinTexts[moneyValue.textIndex]));
                 continue;
             }
+
             if(numberOfCoins.size()==2){
                 displayChangeMsg = displayChangeMsg.concat(String.format("%d %s ",moneyValue.value, coinTexts[moneyValue.textIndex]));
             } else {
@@ -93,25 +87,19 @@ public class Change {
     @Override
     public String toString() { return displayChangeMsg; }
 
-    public BigDecimal getTotal() { return total; }
+    public BigDecimal getTotal() { return TOTAL_CHANGE_VALUE; }
 
-    private final BigDecimal total;
     private String displayChangeMsg = "Your change is ";
+    private final BigDecimal TOTAL_CHANGE_VALUE;
 
-    //private final static BigDecimal dollar = BigDecimal.valueOf(1.00);
-    private final static BigDecimal quarter = BigDecimal.valueOf(0.25);
-    private final static BigDecimal dime = BigDecimal.valueOf(0.10);
-    private final static BigDecimal nickel = BigDecimal.valueOf(0.05);
-    private final static BigDecimal penny = BigDecimal.valueOf(0.01);
+    private final static BigDecimal[] COIN_VALUES = new BigDecimal[]{ BigDecimal.valueOf(0.25), BigDecimal.valueOf(0.10), BigDecimal.valueOf(0.05), BigDecimal.valueOf(0.01) };
+    private final static int DOLLAR_INDEX = 0;
+    private final static int QUARTER_INDEX = 1;
+    private final static int DIME_INDEX = 2;
+    private final static int NICKEL_INDEX = 3;
+    private final static int PENNY_INDEX = 4;
 
-    private final static BigDecimal[] orderArray = new BigDecimal[]{quarter, dime, nickel, penny};
-    private final static int dollarIndex = 0;
-    private final static int quarterIndex = 1;
-    private final static int dimeIndex = 2;
-    private final static int nickelIndex = 3;
-    private final static int pennyIndex = 4;
-
-    private final static String[] coinTextSingular = new String[]{"dollar", "quarter", "dime", "nickel", "penny"};
-    private final static String[] coinTextPlural = new String[]{"dollars", "quarters", "dimes", "nickels", "pennies"};
+    private final static String[] MONEY_TEXT_SINGULAR = new String[]{"dollar", "quarter", "dime", "nickel", "penny"};
+    private final static String[] MONEY_TEXT_PLURAL = new String[]{"dollars", "quarters", "dimes", "nickels", "pennies"};
 
 }
