@@ -1,6 +1,6 @@
 package com.techelevator.test;
 
-import com.techelevator.Change;
+import com.techelevator.money.Change;
 import org.junit.Test;
 
 import java.math.BigDecimal;
