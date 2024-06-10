@@ -6,46 +6,47 @@ import java.math.BigDecimal;
 
 public final class Dispenser implements IDispensable {
     public Dispenser(IDispensable item, ColumnTextFormatter textFormatter, int dispenseCount, int displayIndex) {
-        this.dispensedItem = item;
-        this.textFormatter = textFormatter;
+        this.ITEM = item;
+        this.TEXT_FORMATTER = textFormatter;
         this.dispenseCount = dispenseCount;
-        this.displayIndex = displayIndex;
+        this.DISPLAY_INDEX = displayIndex;
     }
 
     @Override
     public void dispense() {
         if (dispenseCount < 1) return;
 
-        dispensedItem.dispense();
+        ITEM.dispense();
         dispenseCount--;
     }
 
     @Override
-    public String getID() { return dispensedItem.getID(); }
+    public String getID() { return ITEM.getID(); }
 
     @Override
-    public String getDescription() { return dispensedItem.getDescription(); }
+    public String getDescription() { return ITEM.getDescription(); }
 
     @Override
-    public BigDecimal getPrice() { return dispensedItem.getPrice(); }
+    public BigDecimal getPrice() { return ITEM.getPrice(); }
 
     @Override
     public String toString() {
         String remainingText = (dispenseCount > 0) ? "   x" + dispenseCount : "SOLD OUT";
 
-        return textFormatter.format(new String[]{
-                dispensedItem.getID(),
-                dispensedItem.getDescription(),
-                "$" + dispensedItem.getPrice().toString(),
+        return TEXT_FORMATTER.format(new String[]{
+                ITEM.getID(),
+                ITEM.getDescription(),
+                "$" + ITEM.getPrice().toString(),
                 remainingText
         }, '|', 2);
     }
 
     public int getRemainingCount() { return dispenseCount; }
-    public int getDisplayIndex() { return displayIndex; }
+    public int getDisplayIndex() { return DISPLAY_INDEX; }
 
-    private final IDispensable dispensedItem;
-    private final ColumnTextFormatter textFormatter;
     private int dispenseCount;
-    private int displayIndex;
+
+    private final ColumnTextFormatter TEXT_FORMATTER;
+    private final IDispensable ITEM;
+    private final int DISPLAY_INDEX;
 }
